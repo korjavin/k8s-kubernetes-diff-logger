@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kubernetes-diff-logger
+  namespace: gitlab-managed-apps
+spec:
+  replicas: 1
+  template:
+    metadata:
+      namespace: gitlab-managed-apps
+      labels:
+        app: kubernetes-diff-logger
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: kubernetes-diff-logger-config
+      containers:
+      - name: evicted-killer
+        image: grafana/kubernetes-diff-logger:0.0.4
+        imagePullPolicy: Always
+        args: ["/app/app", "-config", "/config/config.yml"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        resources:
+          limits:
+            cpu: 50m
+            memory: 100Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi
